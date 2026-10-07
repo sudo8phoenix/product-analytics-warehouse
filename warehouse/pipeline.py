@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS fct_orders (
   order_ts TEXT NOT NULL,
   order_date TEXT NOT NULL,
   user_id TEXT,
-  amount REAL NOT NULL,
+  amount REAL,
   FOREIGN KEY (event_id) REFERENCES fct_events(event_id),
   FOREIGN KEY (user_id) REFERENCES dim_users(user_id)
 );

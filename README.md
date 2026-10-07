@@ -2,6 +2,20 @@
 
 A reproducible local warehouse for answering where shoppers leave the purchase funnel and which shoppers return. The checked-in dataset is **synthetic**; its numbers demonstrate the pipeline and must not be presented as real customer behavior.
 
+## Authentic event run
+
+The project also supports [Retailrocket's public ecommerce dataset](https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset), a real, anonymized event log licensed CC BY-NC-SA 4.0. Downloading its archive requires about 305 MB and extracting `events.csv` uses about 95 MB. Raw data and the SQLite database are ignored by Git.
+
+```bash
+mkdir -p data/raw
+curl -fL 'https://www.kaggle.com/api/v1/datasets/download/retailrocket/ecommerce-dataset' -o data/raw/retailrocket.zip
+unzip -p data/raw/retailrocket.zip events.csv > data/raw/events.csv
+python3 -m warehouse.retailrocket load --csv data/raw/events.csv --db build/retailrocket.db
+python3 -m warehouse.retailrocket publish --db build/retailrocket.db
+```
+
+The source file used for the checked-in real-data outputs has SHA-256 `3745aa83238b1e6d44d8fda209807899f420084398f94ddf745f3cbcfecbf9e7`. See [`reports/retailrocket_findings.md`](reports/retailrocket_findings.md) and [`dashboard/retailrocket.html`](dashboard/retailrocket.html). The real-data funnel is **visitor based over the observation period** because the source has no session IDs. The source has no checkout events, monetary values, or acquisition channels, so the real report does not invent these metrics.
+
 ## Quick start
 
 Requires Python 3.10+; the local pipeline uses only the standard library.
@@ -41,6 +55,7 @@ The funnel is **session based** and ordered: view item → add to cart → begin
 - [`data/sample_events.jsonl`](data/sample_events.jsonl): synthetic fixture with duplicates, anonymous activity, and a late event.
 - [`reports/sample_findings.md`](reports/sample_findings.md): three findings computed from the fixture.
 - [`dashboard/index.html`](dashboard/index.html): static dashboard generated from the fixture.
+- [`warehouse/retailrocket.py`](warehouse/retailrocket.py): loader and analytics for the authentic public event log.
 - [`tests/test_pipeline.py`](tests/test_pipeline.py): idempotence, late-arrival, and data-quality checks.
 - [`TODO.md`](TODO.md): remaining work and cloud deployment path.
 

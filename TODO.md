@@ -13,6 +13,8 @@
 
 ## Real-data and cloud milestone
 
+- [x] Download, profile, and analyze an authentic public ecommerce event log (Retailrocket); document its limitations and source checksum.
+- [x] Generate a visitor funnel, cohort return analysis, report, and dashboard from authentic events.
 - [ ] Get a Google Cloud project and BigQuery dataset; inspect the GA4 public ecommerce sample and document its date coverage and missing fields.
 - [ ] Build a GA4-to-canonical-event extraction adapter, including nested item rows and transaction reconciliation.
 - [ ] Add `fct_order_items` once item-level purchase data exists; validate order totals against items.
