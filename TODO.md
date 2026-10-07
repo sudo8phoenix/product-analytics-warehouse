@@ -15,12 +15,16 @@
 
 - [x] Download, profile, and analyze an authentic public ecommerce event log (Retailrocket); document its limitations and source checksum.
 - [x] Generate a visitor funnel, cohort return analysis, report, and dashboard from authentic events.
-- [ ] Get a Google Cloud project and BigQuery dataset; inspect the GA4 public ecommerce sample and document its date coverage and missing fields.
+- [x] Create a BigQuery dataset, load the full Retailrocket event file, and verify the cloud counts against the local run.
+- [x] Create event, order, order-item, user, product, date, DAU, retention, and funnel views in BigQuery.
+- [x] Overwrite the BigQuery raw table with the same source file and verify unchanged event, order, visitor, funnel, and cohort counts.
+- [ ] Inspect the GA4 public ecommerce sample and document its date coverage and missing fields.
 - [ ] Build a GA4-to-canonical-event extraction adapter, including nested item rows and transaction reconciliation.
-- [ ] Add `fct_order_items` once item-level purchase data exists; validate order totals against items.
+- [x] Add `fct_order_items` from Retailrocket transaction item events.
+- [ ] Validate order totals against item amounts once a source with monetary values is available.
 - [ ] Port transformations to dbt BigQuery incremental models with partitioning and clustering.
 - [ ] Add dbt uniqueness, non-null, accepted-value, and relationship tests plus revenue reconciliation.
 - [ ] Add an Airflow DAG for ingestion, transformations, quality gates, backfills, and failure alerts.
 - [ ] Publish a Looker Studio dashboard with date filters and last successful refresh.
-- [ ] Replace the sample report with three findings from real data, each with a limitation and next action.
+- [x] Write three evidence-backed findings from real data, each with a limitation and next action.
 - [ ] Measure real dataset volume, runtime, and BigQuery cost; add screenshots and a short demo.

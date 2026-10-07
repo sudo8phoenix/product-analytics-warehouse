@@ -1,6 +1,6 @@
 # Product Analytics Warehouse
 
-A reproducible local warehouse for answering where shoppers leave the purchase funnel and which shoppers return. The checked-in dataset is **synthetic**; its numbers demonstrate the pipeline and must not be presented as real customer behavior.
+A reproducible product analytics warehouse for answering where shoppers leave the purchase funnel and which shoppers return. The checked-in fixture is **synthetic**; authentic Retailrocket events were analyzed locally and loaded into BigQuery.
 
 ## Authentic event run
 
@@ -15,6 +15,10 @@ python3 -m warehouse.retailrocket publish --db build/retailrocket.db
 ```
 
 The source file used for the checked-in real-data outputs has SHA-256 `3745aa83238b1e6d44d8fda209807899f420084398f94ddf745f3cbcfecbf9e7`. See [`reports/retailrocket_findings.md`](reports/retailrocket_findings.md) and [`dashboard/retailrocket.html`](dashboard/retailrocket.html). The real-data funnel is **visitor based over the observation period** because the source has no session IDs. The source has no checkout events, monetary values, or acquisition channels, so the real report does not invent these metrics.
+
+## BigQuery run
+
+The same 2,756,101 Retailrocket rows were loaded into `gen-lang-client-0195528254.product_analytics_warehouse.raw_events` in the US region. Nine SQL views implement event and order facts, dimensions, daily activity, week-one retention, and an ordered visitor funnel. BigQuery returned 2,756,101 unique event keys, 17,672 orders, and 1,407,580 visitors. Funnel, cohort, and peak-day results matched the local run. See [`bigquery/README.md`](bigquery/README.md) for the load settings, SQL, and verification results. The BigQuery table and views are subject to Sandbox expiration.
 
 ## Quick start
 
@@ -56,9 +60,11 @@ The funnel is **session based** and ordered: view item → add to cart → begin
 - [`reports/sample_findings.md`](reports/sample_findings.md): three findings computed from the fixture.
 - [`dashboard/index.html`](dashboard/index.html): static dashboard generated from the fixture.
 - [`warehouse/retailrocket.py`](warehouse/retailrocket.py): loader and analytics for the authentic public event log.
+- [`bigquery/retailrocket_views.sql`](bigquery/retailrocket_views.sql): BigQuery views for the authentic event log.
+- [`bigquery/verify.sql`](bigquery/verify.sql): cloud reconciliation queries.
 - [`tests/test_pipeline.py`](tests/test_pipeline.py): idempotence, late-arrival, and data-quality checks.
 - [`TODO.md`](TODO.md): remaining work and cloud deployment path.
 
 ## Limits and next step
 
-The local source is synthetic and small. It does not estimate real conversion or retention. Google Analytics export has nested items, event parameters, consent effects, and attribution details that require a separate BigQuery adapter and validation before using real data. BigQuery, dbt, Airflow, and Looker Studio are planned in `TODO.md`; no cloud deployment is claimed.
+The fixture is synthetic and small. Retailrocket supports real visitor activity and transaction counts but has no sessions, checkout, prices, revenue, or acquisition channels. Its BigQuery views preserve all source rows because the source lacks unique event IDs; exact duplicate rows cannot be distinguished reliably. A GA4 adapter, dbt models, Airflow scheduling, and a connected dashboard remain in [`TODO.md`](TODO.md).
