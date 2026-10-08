@@ -2,6 +2,14 @@
 
 A reproducible product analytics warehouse for answering where shoppers leave the purchase funnel and which shoppers return. The checked-in fixture is **synthetic**; authentic Retailrocket events were analyzed locally and loaded into BigQuery.
 
+## See the GA4 results
+
+- [Live Looker Studio report](https://datastudio.google.com/u/0/reporting/767fba24-ec08-454b-bfd8-5e4d37940f8d) · [three-page PDF export](reports/ga4_looker_studio_report.pdf)
+- Page captures: [daily active users](reports/screenshots/ga4_daily_active_users.png), [session funnel](reports/screenshots/ga4_session_funnel.png), [week-one retention](reports/screenshots/ga4_week_one_retention.png)
+- [Three measured findings](reports/ga4_findings.md) · [Sandbox validation](reports/ga4_sandbox_validation.md) · [Sandbox quota usage](reports/ga4_sandbox_job_usage.md)
+
+Source data: **2020-11-01 to 2021-01-31 UTC**. The report's date controls default to **2020-11-02 to 2021-01-18** so every shown retention cohort has a complete following week.
+
 ## Authentic event run
 
 The project also supports [Retailrocket's public ecommerce dataset](https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset), a real, anonymized event log licensed CC BY-NC-SA 4.0. Downloading its archive requires about 305 MB and extracting `events.csv` uses about 95 MB. Raw data and the SQLite database are ignored by Git.
