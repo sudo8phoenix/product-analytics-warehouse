@@ -1,0 +1,56 @@
+version: 2
+models:
+  - name: stg_ga4_events
+    description: One canonical ecommerce event per GA4 source row. Identical rows have stable multiset ordinals, not recoverable physical identities.
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: event_ts
+        tests: [not_null]
+      - name: event_date
+        tests: [not_null]
+      - name: event_name
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['view_item', 'add_to_cart', 'begin_checkout', 'purchase']
+  - name: fct_events
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+  - name: fct_orders
+    columns:
+      - name: transaction_id
+        tests: [not_null, unique]
+      - name: event_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('fct_events')
+                field: event_id
+  - name: fct_order_items
+    columns:
+      - name: order_item_id
+        tests: [not_null, unique]
+      - name: transaction_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: transaction_id
+  - name: dim_users
+    columns:
+      - name: user_id
+        tests: [not_null, unique]
+  - name: dim_products
+    columns:
+      - name: product_id
+        tests: [not_null, unique]
+  - name: dim_dates
+    columns:
+      - name: date
+        tests: [not_null, unique]

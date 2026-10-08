@@ -62,9 +62,25 @@ The funnel is **session based** and ordered: view item → add to cart → begin
 - [`warehouse/retailrocket.py`](warehouse/retailrocket.py): loader and analytics for the authentic public event log.
 - [`bigquery/retailrocket_views.sql`](bigquery/retailrocket_views.sql): BigQuery views for the authentic event log.
 - [`bigquery/verify.sql`](bigquery/verify.sql): cloud reconciliation queries.
+- [`bigquery/ga4_sandbox_validate.sql`](bigquery/ga4_sandbox_validate.sql): repeatable GA4 view checks.
 - [`tests/test_pipeline.py`](tests/test_pipeline.py): idempotence, late-arrival, and data-quality checks.
-- [`TODO.md`](TODO.md): remaining work and cloud deployment path.
+- [`reports/ga4_findings.md`](reports/ga4_findings.md): three measured GA4 Sandbox findings.
+- [`reports/ga4_sandbox_job_usage.md`](reports/ga4_sandbox_job_usage.md): recorded Sandbox quota usage.
 
 ## Limits and next step
 
-The fixture is synthetic and small. Retailrocket supports real visitor activity and transaction counts but has no sessions, checkout, prices, revenue, or acquisition channels. Its BigQuery views preserve all source rows because the source lacks unique event IDs; exact duplicate rows cannot be distinguished reliably. A GA4 adapter, dbt models, Airflow scheduling, and a connected dashboard remain in [`TODO.md`](TODO.md).
+The fixture is synthetic and small. Retailrocket supports real visitor activity and transaction counts but has no sessions, checkout, prices, revenue, or acquisition channels. Its BigQuery views preserve all source rows because the source lacks unique event IDs; exact duplicate rows cannot be distinguished reliably.
+
+## GA4/dbt implementation
+
+[`bigquery/ga4_profile.sql`](bigquery/ga4_profile.sql) profiles Google's public GA4 ecommerce sample. [`models/staging/stg_ga4_events.sql`](models/staging/stg_ga4_events.sql) maps ecommerce events to the canonical grain, retains nested items, and generates stable multiset keys for indistinguishable duplicate rows. The dbt marts include orders, order items, user and product dimensions, a UTC date dimension, DAU, week-one return, and an ordered session funnel. The reconciliation test compares order revenue with item price × quantity when both are present; obfuscation can cause real discrepancies. See [`docs/ga4_runbook.md`](docs/ga4_runbook.md) for setup, metric limits, and deployment instructions.
+
+The GA4 source profile was executed in BigQuery; its observed counts and job usage are in [`reports/ga4_profile.md`](reports/ga4_profile.md). Ten Sandbox-compatible GA4 views were deployed and checked against the public sample; see [`reports/ga4_sandbox_validation.md`](reports/ga4_sandbox_validation.md). The [GA4 findings](reports/ga4_findings.md) measure the session funnel, DAU, and week-one retention. The [Sandbox quota record](reports/ga4_sandbox_job_usage.md) reports bytes processed and runtime for six recorded jobs; it is not a monetary cost. The dbt models have passed local parsing but have not run in BigQuery because this project remains in Sandbox and its incremental `MERGE` is unavailable. The public sample and the separate Retailrocket dataset are different sources; their counts should not be compared.
+
+The [Looker Studio report](https://datastudio.google.com/u/0/reporting/767fba24-ec08-454b-bfd8-5e4d37940f8d) has three verified pages: daily active users, ordered session funnel, and week-one retention. A [three-page PDF export](reports/ga4_looker_studio_report.pdf) is checked in. The source data covers **2020-11-01 through 2021-01-31 UTC**. Each page has a date range control defaulting to **2020-11-02 through 2021-01-18**; this keeps the retention chart to 12 cohorts with a complete following week. The retention chart displays the return rate as a 0–1 fraction (for example, 0.05 means 5%). The views recalculate on query; a displayed Data Last Updated time is a report query timestamp, not an Airflow refresh record. Verified page captures: [daily users](reports/screenshots/ga4_daily_active_users.png), [session funnel](reports/screenshots/ga4_session_funnel.png), and [week-one retention](reports/screenshots/ga4_week_one_retention.png).
+
+## Future work
+
+- Execute `dbt build` and tests, then verify rerun and backfill behavior in a **DML-capable BigQuery project**. The current Sandbox cannot run the incremental `MERGE`; billing has not been enabled.
+- Deploy and execute the Airflow DAG, including backfill and failure alert checks, only after moving to a DML-capable project.
+- Capture build and storage job metadata if a future deployment needs a full cloud usage or monetary cost analysis.

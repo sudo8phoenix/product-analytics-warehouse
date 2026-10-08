@@ -1,0 +1,21 @@
+name: product_analytics_warehouse
+version: '1.0.0'
+config-version: 2
+profile: product_analytics_warehouse
+model-paths: ['models']
+test-paths: ['data_tests']
+models:
+  product_analytics_warehouse:
+    +materialized: view
+    staging:
+      +materialized: incremental
+      +incremental_strategy: merge
+      +partition_by: {field: event_date, data_type: date}
+      +cluster_by: ['event_name', 'user_id']
+    marts:
+      +materialized: table
+vars:
+  ga4_start_date: '20201101'
+  ga4_end_date: '20210131'
+  ga4_source_project: 'bigquery-public-data'
+  ga4_source_dataset: 'ga4_obfuscated_sample_ecommerce'

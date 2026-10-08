@@ -5,3 +5,8 @@ build/
 .venv/
 data/raw/
 data/processed/
+profiles.yml
+target/
+logs/
+dbt_packages/
+.user.yml
